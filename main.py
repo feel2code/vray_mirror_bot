@@ -99,10 +99,8 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
     if conf_to_check:
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
         if vray_check:
-            await call.message.answer(
-                f"""Ваша подписка на VRAY действует до:
-                {str(vray_check)[:-8]}"""
-            )
+            await call.message.answer(f"""Ваша подписка на {SERVICE_NAME} действует до:
+                {str(vray_check)[:-8]}""")
         return
     await call.message.answer(
         f"Действующие подписки на {SERVICE_NAME} не найдены!",
@@ -138,7 +136,7 @@ async def subscribe_vray(call: CallbackQuery) -> None:
     for period in [90]:
         await call.message.answer_invoice(
             title="Приобрести подписку Velvet RAY",
-            description=f"Подписка на {period} дней на Velvet Ray",
+            description=f"Подписка на {period} дней на {SERVICE_NAME}",
             prices=[
                 LabeledPrice(
                     label=ccy[f"vray_{period}"]["payload"].title(),
@@ -204,8 +202,10 @@ async def get_instruction(call: CallbackQuery) -> None:
     """
     await call.message.answer(
         f"""
-        Инструкция по установке VRAY:
-        1. Установите клиент VRAY на свой смартфон
+        Инструкция по установке {SERVICE_NAME}:
+        1. Установите любой удобный для вас клиент на устройство, поддерживающий импорт подписок vless.
+        * Для iOS, Android, Windows, macOS, Linux:
+          https://www.happ.su/main
         * Для iOS: https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690
         * Для Android: https://play.google.com/store/apps/details?id=com.v2raytun.android
         2. Купите подписку на {SERVICE_NAME}.
@@ -216,9 +216,7 @@ async def get_instruction(call: CallbackQuery) -> None:
         дает доступ к ресурсам компании {SERVICE_NAME}.
 
         По вопросам поддержки обращаться к @feel2code
-        """.replace(
-            "  ", ""
-        ),
+        """.replace("  ", ""),
         reply_markup=home_kb(),
     )
 
@@ -282,9 +280,7 @@ async def command_start_handler(message: Message) -> None:
             При повторной оплате подписка продлевается.
 
             Принимаете условия использования сервиса?
-        """.replace(
-            "  ", ""
-        ),
+        """.replace("  ", ""),
         reply_markup=accept_kb(),
     )
 
