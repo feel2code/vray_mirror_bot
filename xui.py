@@ -69,7 +69,7 @@ def get_client_info(email: str):
     response = session.get(
         f"{BASE_URL}/panel/api/inbounds/getClientTraffics/{email}", verify=False
     )
-    print(response)
+    print(response.text)
     if response.status_code == 200:
         print(response.text)
         data = response.json()
