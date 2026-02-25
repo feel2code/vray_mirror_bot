@@ -2,19 +2,19 @@
 
 [English](README.md) | [Русский](README.ru.md)
 
-Interactive Telegram bot to automate VRAY clients.
+Интерактивный телеграм бот для автоматизации клиентов vray.
 
-Based on my previous repo: https://github.com/feel2code/vpn_wireguard_mirror_bot
+Основано на моем предыдущем репозитории https://github.com/feel2code/vpn_wireguard_mirror_bot
 
-## Installation in oneline
+## Установка одним кликом
 ```bash
 curl -fsSL https://raw.githubusercontent.com/feel2code/vray_mirror_bot/main/install.sh | bash
 ```
-## Configuration
+## Конфигурация
 ```bash
 cp env.template .env
 ```
-Edit `.env` file and set the following variables:
+Замените значения в файле `.env` на свои.
 ```bash
 BOT_TOKEN=
 SERVICE_NAME=
@@ -30,7 +30,7 @@ PASSWORD=
 INBOUND_ID=
 ```
 
-## Run
+## Запуск
 ```bash
 source venv/bin/activate; python3 main.py
 ```
