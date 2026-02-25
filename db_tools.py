@@ -51,7 +51,7 @@ def check_all_subscriptions():
     )
 
 
-def get_obfuscated_user_conf(user_id):
+def get_obfuscated_user(user_id):
     """
     Gets obfuscated user from the database
     """
@@ -61,7 +61,7 @@ def get_obfuscated_user_conf(user_id):
     )
     if not obfuscated_user:
         return None
-    return f"{obfuscated_user}.conf"
+    return f"{obfuscated_user}"
 
 
 def delete_user_subscription(user_id, is_proxy=0, is_vray=0):

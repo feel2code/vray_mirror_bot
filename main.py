@@ -18,11 +18,7 @@ from aiogram.types import (
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
 
-from db_tools import (
-    check_subscription_end,
-    get_obfuscated_user_conf,
-    need_to_update_user,
-)
+from db_tools import check_subscription_end, get_obfuscated_user, need_to_update_user
 from xui import add_xui_client, get_client_info
 
 logger = logging.getLogger(__name__)
@@ -99,7 +95,7 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
     """
     check end date of the subscription
     """
-    conf_to_check = get_obfuscated_user_conf(call.from_user.id)
+    conf_to_check = get_obfuscated_user(call.from_user.id)
     if conf_to_check:
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
         if vray_check:
@@ -118,11 +114,11 @@ async def restore_vray(call: CallbackQuery) -> None:
     """
     restore file if subscription exists
     """
-    obfuscated_user_conf = get_obfuscated_user_conf(call.from_user.id)
-    if obfuscated_user_conf:
+    obfuscated_user = get_obfuscated_user(call.from_user.id)
+    if obfuscated_user:
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
         if vray_check:
-            slug = get_client_info(f"{obfuscated_user_conf[:-5]}@vray")
+            slug = get_client_info(f"{obfuscated_user}@vray")
             sub_url = f"{HOST_URL}/sub/{slug}"
             await call.bot.send_message(
                 chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
