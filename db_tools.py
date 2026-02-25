@@ -36,24 +36,6 @@ def check_all_subscriptions():
     Checks all subscriptions
     """
     db_conn = SQLUtils()
-    subscriptions_end_vpn = db_conn.query(
-        "select obfuscated_user from users where subscription_end <= date('now') "
-        "and is_proxy=0 and is_vray=0;"
-    )
-    subscriptions_ends_tomorrow_users_vpn = db_conn.query(
-        """select user_id from users where subscription_end >= date('now', '+1 day') 
-            and subscription_end < date('now', '+2 day') 
-            and is_proxy=0 and is_vray=0;"""
-    )
-    subscriptions_end_proxy = db_conn.query(
-        "select obfuscated_user from users where subscription_end <= date('now')"
-        "and is_proxy=1 and is_vray=0;"
-    )
-    subscriptions_ends_tomorrow_users_proxy = db_conn.query(
-        """select user_id from users where subscription_end >= date('now', '+1 day') 
-            and subscription_end < date('now', '+2 day') 
-            and is_proxy=1 and is_vray=0;"""
-    )
     subscriptions_end_vray = db_conn.query(
         "select obfuscated_user from users where subscription_end <= date('now') "
         "and is_proxy=0 and is_vray=1;"
@@ -64,11 +46,7 @@ def check_all_subscriptions():
             and is_proxy=0 and is_vray=1;"""
     )
     return (
-        subscriptions_end_vpn,
-        subscriptions_end_proxy,
         subscriptions_end_vray,
-        subscriptions_ends_tomorrow_users_vpn,
-        subscriptions_ends_tomorrow_users_proxy,
         subscriptions_ends_tomorrow_users_vray,
     )
 
@@ -92,7 +70,7 @@ def delete_user_subscription(user_id, is_proxy=0, is_vray=0):
     """
     db_conn = SQLUtils()
     db_conn.mutate(
-        f"delete from users where user_id={user_id} "
+        f"delete from users where obfuscated_user={user_id} "
         f"and is_proxy={is_proxy} and is_vray={is_vray};"
     )
 

@@ -1,10 +1,12 @@
-# vpn_wireguard_mirror_bot
-Interactive telegram bot for automate VPN clients. Based on async aiogram.
+# vray_mirror_bot
+Interactive telegram bot for automate VRAY clients.
+
+Based on my previous repo https://github.com/feel2code/vpn_wireguard_mirror_bot
 
 ## Installation
 ```bash
-git clone https://github.com/feel2code/vpn_wireguard_mirror_bot.git
-cd vpn_wireguard_mirror_bot
+git clone https://github.com/feel2code/vray_mirror_bot.git
+cd vray_mirror_bot
 pip install -r requirements.txt
 ```
 ## Configuration
@@ -19,7 +21,12 @@ ADMIN=
 FS_USER=
 DB_NAME=
 DEMO_REGIME=1
-HOST_AND_PORT=
+HOST_URL=
+VRAY_90=
+BASE_URL=
+USERNAME=
+PASSWORD=
+INBOUND_ID=
 ```
 
 ## Run
@@ -28,11 +35,7 @@ python3 main.py
 ```
 
 ## Features
-- [x] Wireguard
-- [x] proxy
+- [x] VRAY
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Planning:
-- [ ] Need to update architecture to use flags in db for each service (wg, proxy, vray)

@@ -1,7 +1,4 @@
-# Should be addded to cron
-
 import asyncio
-import subprocess
 from os import getenv
 
 from aiogram import Bot
@@ -14,58 +11,21 @@ ADMIN = getenv("ADMIN")
 TOKEN = getenv("BOT_TOKEN")
 
 
-def delete_obfuscated_user_vpn_conf(obfuscated_user: str) -> bool:
-    """Delete obfuscated user configuration file via automated sh script."""
-    try:
-        result = subprocess.run(
-            ["sh", "delete_config.sh", obfuscated_user], capture_output=True, text=True
-        )
-        if result.returncode != 0:
-            print(f"Error deleting vpn conf: {result.stderr}")
-            return False
-        return True
-    except Exception as e:
-        print(f"Error deleting vpn conf: {e}")
-        return False
-
-
-def delete_obfuscated_user_proxy_conf(obfuscated_user: str) -> bool:
-    """Delete obfuscated user configuration file via automated sh script."""
-    try:
-        result = subprocess.run(
-            ["sh", "delete_proxy.sh", obfuscated_user], capture_output=True, text=True
-        )
-        if result.returncode != 0:
-            print(f"Error deleting proxy conf: {result.stderr}")
-            return False
-        return True
-    except Exception as e:
-        print(f"Error deleting proxy conf: {e}")
-        return False
+def delete_vray_sub(obfuscated_user: str) -> None:
+    """Delete obfuscated user sub from VRAY."""
+    print(obfuscated_user)
 
 
 async def main() -> None:
     """Check subscriptions and send messages to users."""
     bot = Bot(token=TOKEN)
     (
-        common_data_vpn,
-        common_data_proxy,
         common_data_vray,
-        user_ids_tomorrow_ends_vpn,
-        user_ids_tomorrow_ends_proxy,
         user_ids_tomorrow_ends_vray,
     ) = check_all_subscriptions()
 
-    if isinstance(common_data_vpn, str):
-        common_data_vpn = [common_data_vpn]
-    if isinstance(common_data_proxy, str):
-        common_data_proxy = [common_data_proxy]
     if isinstance(common_data_vray, str):
         common_data_vray = [common_data_vray]
-    if isinstance(user_ids_tomorrow_ends_vpn, str):
-        user_ids_tomorrow_ends_vpn = [user_ids_tomorrow_ends_vpn]
-    if isinstance(user_ids_tomorrow_ends_proxy, str):
-        user_ids_tomorrow_ends_proxy = [user_ids_tomorrow_ends_proxy]
     if isinstance(user_ids_tomorrow_ends_vray, str):
         user_ids_tomorrow_ends_vray = [user_ids_tomorrow_ends_vray]
 
@@ -73,57 +33,22 @@ async def main() -> None:
         chat_id=ADMIN,
         text=(
             f"Пользователям:\n"
-            f"VPN {common_data_vpn},\n"
-            f"PROXY {common_data_proxy}\n"
             f"VRAY {common_data_vray}\n"
             "отменены подписки и удалены из базы."
         ),
     )
 
-    for obfuscated_user in common_data_vpn:
-        if delete_obfuscated_user_vpn_conf(obfuscated_user):
-            print(f"Deleted VPN config for user: {obfuscated_user}")
-            delete_user_subscription(obfuscated_user, 0, 0)
-    for obfuscated_user in common_data_proxy:
-        if delete_obfuscated_user_proxy_conf(obfuscated_user):
-            print(f"Deleted PROXY config for user: {obfuscated_user}")
-            delete_user_subscription(obfuscated_user, 1, 0)
     for obfuscated_user in common_data_vray:
-        if delete_obfuscated_user_proxy_conf(obfuscated_user):
-            print(f"Deleted PROXY config for user: {obfuscated_user}")
-            delete_user_subscription(obfuscated_user, 0, 1)
+        # TODO: instead if condition here should be api call for deleting
+        # if delete_obfuscated_user_proxy_conf(obfuscated_user):
+        print(f"Deleted VRAY sub for user: {obfuscated_user}")
+        delete_user_subscription(obfuscated_user, is_vray=1)
 
-    user_ids_tomorrow_ends_vpn = (
-        [user_ids_tomorrow_ends_vpn]
-        if isinstance(user_ids_tomorrow_ends_vpn, int)
-        else user_ids_tomorrow_ends_vpn
-    )
-    user_ids_tomorrow_ends_proxy = (
-        [user_ids_tomorrow_ends_proxy]
-        if isinstance(user_ids_tomorrow_ends_proxy, int)
-        else user_ids_tomorrow_ends_proxy
-    )
     user_ids_tomorrow_ends_vray = (
         [user_ids_tomorrow_ends_vray]
         if isinstance(user_ids_tomorrow_ends_vray, int)
         else user_ids_tomorrow_ends_vray
     )
-    for user_id in user_ids_tomorrow_ends_vpn:
-        await bot.send_message(
-            chat_id=int(user_id),
-            text=(
-                """Напоминание о том, что ваша подписка на неVPN завтра закончится.
-                   Вы можете продлить ее."""
-            ),
-        )
-    for user_id in user_ids_tomorrow_ends_proxy:
-        await bot.send_message(
-            chat_id=int(user_id),
-            text=(
-                """Напоминание о том, что ваша подписка на PROXY завтра закончится.
-                   Вы можете продлить ее."""
-            ),
-        )
     for user_id in user_ids_tomorrow_ends_vray:
         await bot.send_message(
             chat_id=int(user_id),
@@ -146,6 +71,7 @@ async def send_message_to_all_users() -> None:
 
 
 async def refund() -> None:
+    """Refunds payment."""
     bot = Bot(token=TOKEN)
     await bot.refund_star_payment(
         user_id=0,
@@ -156,3 +82,4 @@ async def refund() -> None:
 if __name__ == "__main__":
     asyncio.run(main())
     # asyncio.run(refund())
+    # asyncio.run(send_message_to_all_users())

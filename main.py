@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import shlex
-import subprocess
 import sys
 from os import getenv
 from uuid import uuid4
@@ -12,7 +10,6 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import (
     CallbackQuery,
-    FSInputFile,
     InlineKeyboardMarkup,
     LabeledPrice,
     Message,
@@ -38,55 +35,25 @@ SERVICE_NAME = getenv("SERVICE_NAME")
 ADMIN = getenv("ADMIN")
 TOKEN = getenv("BOT_TOKEN")
 FS_USER = getenv("FS_USER")
-HOST_AND_PORT = getenv("HOST_AND_PORT")
+HOST_URL = getenv("HOST_URL")
 
 PRICING = {
-    "vpn_30": int(getenv("VPN_30")),
-    "proxy_30": int(getenv("PROXY_30")),
     "vray_90": int(getenv("VRAY_90")),
 }
 dp = Dispatcher()
 
 if DEMO_REGIME:
     ccy = {
-        "demo_1": {
-            "payload": "demo_30",
-            "value": 1,
-        },
-        "proxy_1": {
-            "payload": "demo_proxy",
+        "vray_1": {
+            "payload": "vray_90",
             "value": 1,
         },
     }
 else:
     ccy = {
-        "unreal_30": {
-            "payload": "unreal_30",
-            "value": PRICING["vpn_30"],
-        },
-        "unreal_60": {
-            "payload": "unreal_60",
-            "value": round(PRICING["vpn_30"] * 2 * 0.94),
-        },
-        "unreal_90": {
-            "payload": "unreal_90",
-            "value": round(PRICING["vpn_30"] * 3 * 0.9),
-        },
-        "proxy_30": {
-            "payload": "proxy_30",
-            "value": PRICING["proxy_30"],
-        },
-        "proxy_60": {
-            "payload": "proxy_60",
-            "value": round(PRICING["proxy_30"] * 2 * 0.94),
-        },
-        "proxy_90": {
-            "payload": "proxy_90",
-            "value": round(PRICING["proxy_30"] * 3 * 0.9),
-        },
         "vray_90": {
             "payload": "vray_90",
-            "value": round(PRICING["vray_90"] * 3),
+            "value": round(PRICING["vray_90"] * 1),
         },
     }
 
@@ -96,15 +63,13 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     subscribe management keyboard
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="➕ Купить подписку неVPN", callback_data="subscribe_vpn")
-    kb.button(text="➕ Купить подписку PROXY", callback_data="subscribe_proxy")
     kb.button(text="➕ Купить подписку Velvet RAY", callback_data="subscribe_vray")
     kb.button(text="ℹ️  Инструкция и поддержка", callback_data="instruction")
     kb.button(
         text="👽 Проверить подписку", callback_data="check_end_date_of_subscription"
     )
-    kb.button(text="✔️ Прислать файл неVPN", callback_data="restore_wg_file")
-    kb.adjust(1, 1, 1, 1, 1, 1)
+    kb.button(text="✔️ Восстановить подписку Velvet RAY", callback_data="restore_vray")
+    kb.adjust(1, 1, 1, 1)
     return kb.as_markup()
 
 
@@ -113,11 +78,9 @@ def home_kb() -> InlineKeyboardMarkup:
     home keyboard
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="➕ Купить подписку неVPN", callback_data="subscribe_vpn")
-    kb.button(text="➕ Купить подписку PROXY", callback_data="subscribe_proxy")
     kb.button(text="➕ Купить подписку Velvet RAY", callback_data="subscribe_vray")
     kb.button(text="😢 Назад", callback_data="home")
-    kb.adjust(1, 1, 1, 1)
+    kb.adjust(1, 1)
     return kb.as_markup()
 
 
@@ -127,7 +90,7 @@ def accept_kb() -> InlineKeyboardMarkup:
     """
     kb = InlineKeyboardBuilder()
     kb.button(text="ПРИНИМАЮ", callback_data="accept")
-    kb.adjust(2, 2, 1)  # TODO: do we need that actually?
+    kb.adjust(1)
     return kb.as_markup()
 
 
@@ -138,81 +101,37 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
     """
     conf_to_check = get_obfuscated_user_conf(call.from_user.id)
     if conf_to_check:
-        vpn_check = check_subscription_end(call.from_user.id, is_proxy=0)
-        proxy_check = check_subscription_end(call.from_user.id, is_proxy=1)
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
-        if vpn_check:
-            await call.message.answer(f"""Ваша подписка на неVPN действует до:
-                {str(vpn_check)[:-8]}""")
-        if proxy_check:
-            await call.message.answer(f"""Ваша подписка на PROXY действует до:
-                {str(proxy_check)[:-8]}""")
         if vray_check:
-            await call.message.answer(f"""Ваша подписка на VRAY действует до:
-                {str(vray_check)[:-8]}""")
+            await call.message.answer(
+                f"""Ваша подписка на VRAY действует до:
+                {str(vray_check)[:-8]}"""
+            )
         return
     await call.message.answer(
         f"Действующие подписки на {SERVICE_NAME} не найдены!",
     )
 
 
-@invoices_router.callback_query(F.data.startswith("restore_wg_file"))
-async def restore_wg_file(call: CallbackQuery) -> None:
+@invoices_router.callback_query(F.data.startswith("restore_vray"))
+async def restore_vray(call: CallbackQuery) -> None:
     """
     restore file if subscription exists
     """
     obfuscated_user_conf = get_obfuscated_user_conf(call.from_user.id)
     if obfuscated_user_conf:
-        vpn_check = check_subscription_end(call.from_user.id, is_proxy=0)
-        if vpn_check:
-            await call.bot.send_document(
-                chat_id=call.from_user.id,
-                document=FSInputFile(f"/{FS_USER}/{obfuscated_user_conf}"),
+        vray_check = check_subscription_end(call.from_user.id, is_vray=1)
+        if vray_check:
+            slug = get_client_info(f"{obfuscated_user_conf[:-5]}@vray")
+            sub_url = f"{HOST_URL}/sub/{slug}"
+            await call.bot.send_message(
+                chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
             )
+            await call.bot.send_message(chat_id=call.from_user.id, text=sub_url)
             return
     await call.message.answer(
-        f"Действующая подпискa на {SERVICE_NAME} неVPN не найдена!",
+        f"Действующая подпискa на {SERVICE_NAME} не найдена!",
     )
-
-
-@invoices_router.callback_query(F.data.startswith("subscribe_vpn"))
-async def subscribe_vpn(call: CallbackQuery) -> None:
-    """
-    subscribe to the VPN service
-    """
-    for period in [30, 60, 90]:
-        await call.message.answer_invoice(
-            title="Приобрести подписку неVPN",
-            description=f"Подписка на {period} дней на {SERVICE_NAME} неVPN",
-            prices=[
-                LabeledPrice(
-                    label=ccy[f"unreal_{period}"]["payload"].title(),
-                    amount=ccy[f"unreal_{period}"]["value"],
-                ),
-            ],
-            payload=ccy[f"unreal_{period}"]["payload"],
-            currency="XTR",
-        )
-
-
-@invoices_router.callback_query(F.data.startswith("subscribe_proxy"))
-async def subscribe_proxy(call: CallbackQuery) -> None:
-    """
-    subscribe to the PROXY service
-    """
-    for period in [30, 60, 90]:
-        await call.message.answer_invoice(
-            title="Приобрести подписку PROXY",
-            description=f"Подписка на {period} дней на {SERVICE_NAME} PROXY",
-            prices=[
-                LabeledPrice(
-                    label=ccy[f"proxy_{period}"]["payload"].title(),
-                    amount=ccy[f"proxy_{period}"]["value"],
-                ),
-            ],
-            payload=ccy[f"proxy_{period}"]["payload"],
-            currency="XTR",
-        )
 
 
 @invoices_router.callback_query(F.data.startswith("subscribe_vray"))
@@ -268,44 +187,11 @@ async def successful_payment(message: Message, bot: Bot) -> None:
         obfuscated_user=f"{uuid_gen}",
         invoice_payload=message.successful_payment.invoice_payload,
     ):
-        # PROXY
-        if message.successful_payment.invoice_payload.startswith("proxy_"):
-            proxy_key = str(uuid4())[:13]
-            subprocess.run(
-                shlex.split(
-                    f"/usr/local/3proxy/conf/add3proxyuser.sh {uuid_gen} {proxy_key}"
-                ),
-                check=False,
-            )
-            subprocess.run(
-                shlex.split("systemctl restart 3proxy"),
-                check=False,
-            )
-            await bot.send_message(
-                chat_id=message.from_user.id,
-                text=(
-                    f"Хост: {HOST_AND_PORT}\nПользователь: {uuid_gen}\nПароль: {proxy_key}"
-                ),
-            )
-            return
-        # VPN
-        if message.successful_payment.invoice_payload.startswith("unreal_"):
-            subprocess.run(
-                shlex.split(
-                    f"/{FS_USER}/vpn_wireguard_mirror_bot/./create_config.sh {uuid_gen}"
-                ),
-                check=False,
-            )
-            await bot.send_document(
-                chat_id=user_id,
-                document=FSInputFile(f"/{FS_USER}/{uuid_gen}.conf"),
-            )
-            return
         # VRAY
         if message.successful_payment.invoice_payload == "vray_90":
             add_xui_client(user_id, nickname, uuid_gen)
             slug = get_client_info(f"{uuid_gen}@vray")
-            sub_url = f"{getenv('HOST_URL')}/sub/{slug}"
+            sub_url = f"{HOST_URL}/sub/{slug}"
             await bot.send_message(
                 chat_id=user_id, text="Вставьте следующий URL в приложение:"
             )
@@ -322,32 +208,21 @@ async def get_instruction(call: CallbackQuery) -> None:
     """
     await call.message.answer(
         f"""
-        Инструкция по установке неVPN:
-        1. Установите приложение Wireguard на свой смартфон
-        * Для iOS: https://apps.apple.com/us/app/wireguard/id1441195209
-        * Для Android: https://play.google.com/store/apps/details?id=com.wireguard.android
-        2. Купите подписку на {SERVICE_NAME}.
-        3. После оплаты, вам придет сообщение с файлом, который нужно
-        импортировать в приложении для подключения.
-
-        Инструкция по установке PROXY:
-        1. Установите плагин/приложения для прокси
-        2. Купите подписку на {SERVICE_NAME}.
-        3. Введите логин/пароль
-
         Инструкция по установке VRAY:
         1. Установите клиент VRAY на свой смартфон
         * Для iOS: https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690
         * Для Android: https://play.google.com/store/apps/details?id=com.v2raytun.android
         2. Купите подписку на {SERVICE_NAME}.
-        3. После оплаты, вам придет сообщение с файлом, который нужно
+        3. После оплаты, вам придет сообщение с подпиской, которую нужно
         импортировать в приложении для подключения.
 
         Приятного пользования! Подписка на сервис не означает обхода блокировок,
         дает доступ к ресурсам компании {SERVICE_NAME}.
 
         По вопросам поддержки обращаться к @feel2code
-        """.replace("  ", ""),
+        """.replace(
+            "  ", ""
+        ),
         reply_markup=home_kb(),
     )
 
@@ -357,15 +232,6 @@ async def pre_checkout_query(query: PreCheckoutQuery) -> None:
     """
     Pre-checkout query handler
     """
-    if query.invoice_payload.startswith("unreal_"):
-        await query.answer(ok=True)
-        return
-    if query.invoice_payload.startswith("proxy"):
-        await query.answer(ok=True)
-        return
-    if query.invoice_payload.startswith("demo_"):
-        await query.answer(ok=True)
-        return
     if query.invoice_payload.startswith("vray_"):
         await query.answer(ok=True)
         return
@@ -412,21 +278,17 @@ async def command_start_handler(message: Message) -> None:
             Сервис не несет ответственности за использование сервиса в незаконных целях.
             Сервис шифрует трафик между вашим устройством и ресурсами компании {SERVICE_NAME}.
 
-            В целях устранения недопонимания, доступ к ресурсам назван неVPN,
-            и не является VPN сервисом.
-
             Принимая условия сервиса, Вы признаете, что несете
             полную ответственность за использование сервиса.
             Подписка предоставляется на одно устройство.
             Возврат средств не предусмотрен за подписку на сервис,
-            оплата происходит единоразово на 30, 60 или 90 дней.
+            оплата происходит единоразово.
             При повторной оплате подписка продлевается.
 
-            Есть отдельная подписка на PROXY на 30, 60 или 90 дней.
-            Также есть подписка VRAY на 90 дней.
-
             Принимаете условия использования сервиса?
-        """.replace("  ", ""),
+        """.replace(
+            "  ", ""
+        ),
         reply_markup=accept_kb(),
     )
 
