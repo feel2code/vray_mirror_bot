@@ -4,6 +4,7 @@ import sys
 from os import getenv
 from uuid import uuid4
 
+import requests
 from aiogram import Bot, Dispatcher, F, Router, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -64,8 +65,9 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     kb.button(
         text="👽 Проверить подписку", callback_data="check_end_date_of_subscription"
     )
-    kb.button(text="✔️ Восстановить подписку Velvet RAY", callback_data="restore_vray")
-    kb.adjust(1, 1, 1, 1)
+    kb.button(text="✔️ Подписка Velvet RAY", callback_data="restore_vray")
+    kb.button(text="🥲 Линк Velvet RAY", callback_data="restore_vray_raw")
+    kb.adjust(1, 1, 1, 2)
     return kb.as_markup()
 
 
@@ -110,7 +112,7 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
 @invoices_router.callback_query(F.data.startswith("restore_vray"))
 async def restore_vray(call: CallbackQuery) -> None:
     """
-    restore file if subscription exists
+    restore sub if exists
     """
     obfuscated_user = get_obfuscated_user(call.from_user.id)
     if obfuscated_user:
@@ -122,6 +124,30 @@ async def restore_vray(call: CallbackQuery) -> None:
                 chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
             )
             await call.bot.send_message(chat_id=call.from_user.id, text=sub_url)
+            return
+    await call.message.answer(
+        f"Действующая подпискa на {SERVICE_NAME} не найдена!",
+    )
+
+
+@invoices_router.callback_query(F.data.startswith("restore_vray_raw"))
+async def restore_vray_raw(call: CallbackQuery) -> None:
+    """
+    restore vless raw link if sub exists
+    """
+    obfuscated_user = get_obfuscated_user(call.from_user.id)
+    if obfuscated_user:
+        vray_check = check_subscription_end(call.from_user.id, is_vray=1)
+        if vray_check:
+            slug = get_client_info(f"{obfuscated_user}@vray")
+            sub_url = f"{HOST_URL}/sub/{slug}"
+            r = requests.get(sub_url, timeout=20)
+            r.raise_for_status()
+            vless_link = r.text.strip()
+            await call.bot.send_message(
+                chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
+            )
+            await call.bot.send_message(chat_id=call.from_user.id, text=vless_link)
             return
     await call.message.answer(
         f"Действующая подпискa на {SERVICE_NAME} не найдена!",
@@ -211,6 +237,9 @@ async def get_instruction(call: CallbackQuery) -> None:
         2. Купите подписку на {SERVICE_NAME}.
         3. После оплаты, вам придет сообщение с подпиской, которую нужно
         импортировать в приложении для подключения.
+           Если вдруг возникнут проблемы с импортом, вы можете вручную создать конфигурацию в приложении,
+           нажав на кнопку "Подписка Velvet RAY" в боте,
+           либо на кнопку "Линк Velvet RAY" и скопировав оттуда URL подписки для импорта.
 
         Приятного пользования! Подписка на сервис не означает обхода блокировок,
         дает доступ к ресурсам компании {SERVICE_NAME}.
