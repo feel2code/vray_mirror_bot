@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import logging
 import sys
 from os import getenv
@@ -143,7 +144,9 @@ async def restore_vray_raw(call: CallbackQuery) -> None:
             sub_url = f"{HOST_URL}/sub/{slug}"
             r = requests.get(sub_url, timeout=20)
             r.raise_for_status()
-            vless_link = r.text.strip()
+            raw = r.text.strip()
+            raw_compact = "".join(raw.split())
+            vless_link = base64.b64decode(raw_compact).decode("utf-8", errors="replace")
             await call.bot.send_message(
                 chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
             )
