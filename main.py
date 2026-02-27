@@ -65,7 +65,7 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     kb.button(
         text="👽 Проверить подписку", callback_data="check_end_date_of_subscription"
     )
-    kb.button(text="✔️ Подписка Velvet RAY", callback_data="restore_vray")
+    kb.button(text="✔️ Подписка Velvet RAY", callback_data="restore_vray_sub")
     kb.button(text="🥲 Линк Velvet RAY", callback_data="restore_vray_raw")
     kb.adjust(1, 1, 1, 2)
     return kb.as_markup()
@@ -109,8 +109,8 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
     )
 
 
-@invoices_router.callback_query(F.data.startswith("restore_vray"))
-async def restore_vray(call: CallbackQuery) -> None:
+@invoices_router.callback_query(F.data.startswith("restore_vray_sub"))
+async def restore_vray_sub(call: CallbackQuery) -> None:
     """
     restore sub if exists
     """
