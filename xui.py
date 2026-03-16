@@ -77,6 +77,56 @@ def get_client_info(email: str):
     return []
 
 
+def delete_xui_client(email: str):
+    """Delete x-ui client."""
+    session = auth()
+    response = session.get(
+        f"{BASE_URL}/panel/api/inbounds/get/2/delClientByEmail/{email}", verify=False
+    )
+    if response.status_code == 200:
+        data = response.json()
+        if data.get("success"):
+            print(f"✅ Client with email {email} successfully deleted!")
+        else:
+            print(f"❌ Client with email {email} was not deleted.")
+    else:
+        print(
+            f"❌ Failed to delete client with email {email}. "
+            f"Server responded with status code {response.status_code}."
+        )
+
+
+def update_xui_client(email: str, period: int):
+    """Update x-ui client period."""
+    session = auth()
+    response = session.get(f"{BASE_URL}/panel/api/inbounds/get/2", verify=False)
+    if response.status_code != 200:
+        print(
+            f"❌ Failed to retrieve clients. Server responded with code {response.status_code}."
+        )
+        return
+    data = response.json()
+    clients = json.loads(data["obj"]["settings"])["clients"]
+    client = next((c for c in clients if c.get("email") == email), None)
+    uuid = client["id"]
+    current_expiry = client["expiryTime"]
+    new_expiry = current_expiry + period * 86400 * 1000
+    update_data = {"expiryTime": new_expiry}
+    response = session.post(
+        f"{BASE_URL}/panel/api/inbounds/updateClient/{uuid}",
+        json=update_data,
+        verify=False,
+    )
+    if response.status_code == 200:
+        data = response.json()
+        if data.get("success"):
+            print(f"✅ Client with email {email} successfully updated!")
+        else:
+            print(f"❌ Client with email {email} was not updated.")
+
+
 if __name__ == "__main__":
     # add_xui_client(os.getenv("ADMIN"), "test_nick2", "test")
+    # delete_xui_client("test@vray")
+    # update_xui_client("test@vray", 30)
     get_client_info("test@vray")

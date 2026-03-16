@@ -4,16 +4,17 @@ from os import getenv
 from aiogram import Bot
 from dotenv import load_dotenv
 
-from db_tools import check_all_subscriptions, delete_user_subscription, get_all_users
+from db_tools import (
+    check_all_subscriptions,
+    check_subscription_end,
+    delete_user_subscription,
+    get_all_users,
+)
+from xui import delete_xui_client
 
 load_dotenv(".env")
 ADMIN = getenv("ADMIN")
 TOKEN = getenv("BOT_TOKEN")
-
-
-def delete_vray_sub(obfuscated_user: str) -> None:
-    """Delete obfuscated user sub from VRAY."""
-    print(obfuscated_user)
 
 
 async def main() -> None:
@@ -39,10 +40,8 @@ async def main() -> None:
     )
 
     for obfuscated_user in common_data_vray:
-        # TODO: instead if condition here should be api call for deleting
-        # if delete_obfuscated_user_proxy_conf(obfuscated_user):
-        print(f"Deleted VRAY sub for user: {obfuscated_user}")
-        delete_user_subscription(obfuscated_user, is_vray=1)
+        if delete_xui_client(f"{obfuscated_user}@vray"):
+            delete_user_subscription(obfuscated_user, is_vray=1)
 
     user_ids_tomorrow_ends_vray = (
         [user_ids_tomorrow_ends_vray]
@@ -50,11 +49,11 @@ async def main() -> None:
         else user_ids_tomorrow_ends_vray
     )
     for user_id in user_ids_tomorrow_ends_vray:
+        vray_end = str(check_subscription_end(user_id, is_vray=1))[:-8]
         await bot.send_message(
             chat_id=int(user_id),
             text=(
-                """Напоминание о том, что ваша подписка на VRAY завтра закончится.
-                   Вы можете продлить ее."""
+                f"Напоминаем, что подписка VRAY скоро закончится: {vray_end}. Вы можете продлить ее"
             ),
         )
 

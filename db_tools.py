@@ -6,6 +6,8 @@ from sqlite3 import DatabaseError, OperationalError
 
 from dotenv import load_dotenv
 
+from xui import update_xui_client
+
 load_dotenv(".env")
 FS_USER = getenv("FS_USER")
 
@@ -37,13 +39,10 @@ def check_all_subscriptions():
     """
     db_conn = SQLUtils()
     subscriptions_end_vray = db_conn.query(
-        "select obfuscated_user from users where subscription_end <= date('now') "
-        "and is_proxy=0 and is_vray=1;"
+        "select obfuscated_user from users where subscription_end <= date('now') and is_vray=1;"
     )
     subscriptions_ends_tomorrow_users_vray = db_conn.query(
-        """select user_id from users where subscription_end >= date('now', '+1 day') 
-            and subscription_end < date('now', '+2 day')
-            and is_proxy=0 and is_vray=1;"""
+        "select user_id from users where subscription_end <= date('now', '+2 day') and is_vray=1;"
     )
     return (
         subscriptions_end_vray,
@@ -101,6 +100,7 @@ def need_to_update_user(user_id, obfuscated_user, invoice_payload):
             f"""update users set subscription_end='{end_of_period}'
                 where user_id={user_id} and is_proxy={is_proxy} and is_vray={is_vray};"""
         )
+        update_xui_client(f"{obfuscated_user}@vray", prolongation)
         return True
     end_of_period = cur_datetime + timedelta(days=prolongation)
     db_conn.mutate(f"""insert into users
