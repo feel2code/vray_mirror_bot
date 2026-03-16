@@ -111,7 +111,8 @@ def update_xui_client(email: str, period: int):
     uuid = client["id"]
     current_expiry = client["expiryTime"]
     new_expiry = current_expiry + period * 86400 * 1000
-    update_data = {"expiryTime": new_expiry}
+    session_id = session.cookies.get("3x-ui")
+    update_data = {"id": session_id, "expiryTime": new_expiry}
     response = session.post(
         f"{BASE_URL}/panel/api/inbounds/updateClient/{uuid}",
         json=update_data,
