@@ -85,11 +85,11 @@ def get_client_info_by_email(email: str):
     response = session.get(
         f"{BASE_URL}/panel/api/inbounds/get/{INBOUND_ID}", verify=False
     )
-    if response.status_code != 200:
+    if response.status_code == 200:
         print(
             f"❌ Failed to retrieve clients. Server responded with code {response.status_code}."
         )
-        return
+        return None
     data = response.json()
     clients = json.loads(data["obj"]["settings"])["clients"]
     client = next((c for c in clients if c.get("email") == email), None)
@@ -98,7 +98,7 @@ def get_client_info_by_email(email: str):
 
 def delete_xui_client(email: str):
     """Delete x-ui client."""
-    get_client_info_by_email(email)
+    client = get_client_info_by_email(email)
     session = auth()
     client_uuid = client["id"]
     response = session.get(
@@ -120,7 +120,7 @@ def delete_xui_client(email: str):
 
 def update_xui_client(email: str, period: int):
     """Update x-ui client period."""
-    get_client_info_by_email(email)
+    client = get_client_info_by_email(email)
     session = auth()
     client_uuid = client["id"]
     current_expiry = client["expiryTime"]
