@@ -35,9 +35,8 @@ TOKEN = getenv("BOT_TOKEN")
 FS_USER = getenv("FS_USER")
 HOST_URL = getenv("HOST_URL")
 
-PRICING = {
-    "vray_90": int(getenv("VRAY_90")),
-}
+VRAY_PRICING = int(getenv("VRAY_PRICING"))
+
 dp = Dispatcher()
 
 if DEMO_REGIME:
@@ -49,9 +48,17 @@ if DEMO_REGIME:
     }
 else:
     ccy = {
+        "vray_30": {
+            "payload": "vray_30",
+            "value": round(VRAY_PRICING * 1),
+        },
+        "vray_60": {
+            "payload": "vray_60",
+            "value": round(VRAY_PRICING * 1.9),
+        },
         "vray_90": {
             "payload": "vray_90",
-            "value": round(PRICING["vray_90"] * 1),
+            "value": round(VRAY_PRICING * 2.8),
         },
     }
 
@@ -162,7 +169,7 @@ async def subscribe_vray(call: CallbackQuery) -> None:
     """
     subscribe to the vray service
     """
-    for period in [90]:
+    for period in [30, 60, 90]:
         await call.message.answer_invoice(
             title="Приобрести подписку Velvet RAY",
             description=f"Подписка на {period} дней на {SERVICE_NAME}",
