@@ -127,7 +127,7 @@ def update_xui_client(email: str, period: int):
     }
 
     update_data = {
-        "id": INBOUND_ID,
+        "id": int(INBOUND_ID),
         "settings": json.dumps(settings_obj, separators=(",", ":")),
     }
     response = session.post(
