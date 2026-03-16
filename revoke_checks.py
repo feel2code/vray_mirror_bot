@@ -35,7 +35,8 @@ async def main() -> None:
         text=(
             f"Пользователям:\n"
             f"VRAY {common_data_vray}\n"
-            "отменены подписки и удалены из базы."
+            "будут отменены подписки и удалены из базы.\n"
+            f"Скоро конец: {user_ids_tomorrow_ends_vray}"
         ),
     )
 
