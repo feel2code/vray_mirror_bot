@@ -120,7 +120,7 @@ async def restore_vray_sub(call: CallbackQuery) -> None:
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
         if vray_check:
             slug = get_client_info(f"{obfuscated_user}@vray")
-            sub_url = f"{HOST_URL}/sub/{slug}"
+            sub_url = f"{HOST_URL}/save666masterx/{slug}"
             await call.bot.send_message(
                 chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
             )
@@ -141,7 +141,7 @@ async def restore_vray_raw(call: CallbackQuery) -> None:
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
         if vray_check:
             slug = get_client_info(f"{obfuscated_user}@vray")
-            sub_url = f"{HOST_URL}/sub/{slug}"
+            sub_url = f"{HOST_URL}/save666masterx/{slug}"
             r = requests.get(sub_url, timeout=20)
             r.raise_for_status()
             raw = r.text.strip()
@@ -214,7 +214,7 @@ async def successful_payment(message: Message, bot: Bot) -> None:
         if message.successful_payment.invoice_payload == "vray_90":
             add_xui_client(user_id, nickname, uuid_gen)
             slug = get_client_info(f"{uuid_gen}@vray")
-            sub_url = f"{HOST_URL}/sub/{slug}"
+            sub_url = f"{HOST_URL}/save666masterx/{slug}"
             await bot.send_message(
                 chat_id=user_id, text="Вставьте следующий URL в приложение:"
             )
@@ -247,7 +247,7 @@ async def get_instruction(call: CallbackQuery) -> None:
         Приятного пользования! Подписка на сервис не означает обхода блокировок,
         дает доступ к ресурсам компании {SERVICE_NAME}.
 
-        По вопросам поддержки обращаться к @feel2code
+        По вопросам поддержки обращаться к @load_it_check_it_quick_rewriteit
         """.replace("  ", ""),
         reply_markup=home_kb(),
     )

@@ -103,12 +103,10 @@ def need_to_update_user(user_id, obfuscated_user, invoice_payload):
         )
         return True
     end_of_period = cur_datetime + timedelta(days=prolongation)
-    db_conn.mutate(
-        f"""insert into users
+    db_conn.mutate(f"""insert into users
             (id, user_id, obfuscated_user, subscription_start, subscription_end, is_proxy, is_vray)
             values ((select max(id)+1 from users), '{user_id}', '{obfuscated_user}',
-            '{cur_datetime}', '{end_of_period}', {is_proxy}, {is_vray});"""
-    )
+            '{cur_datetime}', '{end_of_period}', {is_proxy}, {is_vray});""")
     return False
 
 
@@ -122,7 +120,7 @@ class SQLUtils:
     def connect(self):
         """Connects to the database"""
         self.conn = sqlite3.connect(
-            f'/{FS_USER}/vpn_wireguard_mirror_bot/{os.getenv("DB_NAME")}.db'
+            f'/{FS_USER}/vray_mirror_bot/{os.getenv("DB_NAME")}.db'
         )
 
     def query(self, request):
