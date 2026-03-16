@@ -121,7 +121,10 @@ def update_xui_client(email: str, period: int):
         "clients": [
             {
                 "id": client_uuid,
+                "email": email,
                 "expiryTime": new_expiry,
+                "enable": True,
+                "subId": client["subId"],
             }
         ]
     }
