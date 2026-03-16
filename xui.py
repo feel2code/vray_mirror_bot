@@ -85,7 +85,7 @@ def get_client_info_by_email(email: str):
     response = session.get(
         f"{BASE_URL}/panel/api/inbounds/get/{INBOUND_ID}", verify=False
     )
-    if response.status_code == 200:
+    if response.status_code != 200:
         print(
             f"❌ Failed to retrieve clients. Server responded with code {response.status_code}."
         )
