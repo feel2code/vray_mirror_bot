@@ -66,13 +66,12 @@ def add_xui_client(user_id: int, nickname: str, obfuscated_user: str):
 def get_client_info(email: str):
     """Get client info."""
     session = auth()
-    response = session.get(
-        f"{BASE_URL}/panel/api/inbounds/getClientTraffics/{email}", verify=False
-    )
+    response = session.get(f"{BASE_URL}/panel/api/inbounds/get/2", verify=False)
     if response.status_code == 200:
-        print(response.text)
         data = response.json()
-        sub_id = data.get("obj", {}).get("subId", [])
+        clients = json.loads(data["obj"]["settings"])["clients"]
+        client = next((c for c in clients if c.get("email") == email), None)
+        sub_id = client["subId"]
         print(sub_id)
         return sub_id
     return []
