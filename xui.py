@@ -122,7 +122,7 @@ def update_xui_client(email: str, period: int):
             {
                 "id": client_uuid,
                 "email": email,
-                "tgId": client["tgId"],
+                "tgId": client.get("tgId", ""),
                 "expiryTime": new_expiry,
                 "enable": True,
                 "subId": client["subId"],
