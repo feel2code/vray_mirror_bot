@@ -66,7 +66,9 @@ def add_xui_client(user_id: int, nickname: str, obfuscated_user: str):
 def get_client_info(email: str):
     """Get client info."""
     session = auth()
-    response = session.get(f"{BASE_URL}/panel/api/inbounds/get/2", verify=False)
+    response = session.get(
+        f"{BASE_URL}/panel/api/inbounds/get/{INBOUND_ID}", verify=False
+    )
     if response.status_code == 200:
         data = response.json()
         clients = json.loads(data["obj"]["settings"])["clients"]
@@ -81,7 +83,8 @@ def delete_xui_client(email: str):
     """Delete x-ui client."""
     session = auth()
     response = session.get(
-        f"{BASE_URL}/panel/api/inbounds/get/2/delClientByEmail/{email}", verify=False
+        f"{BASE_URL}/panel/api/inbounds/get/{INBOUND_ID}/delClientByEmail/{email}",
+        verify=False,
     )
     if response.status_code == 200:
         data = response.json()
@@ -99,7 +102,9 @@ def delete_xui_client(email: str):
 def update_xui_client(email: str, period: int):
     """Update x-ui client period."""
     session = auth()
-    response = session.get(f"{BASE_URL}/panel/api/inbounds/get/2", verify=False)
+    response = session.get(
+        f"{BASE_URL}/panel/api/inbounds/get/{INBOUND_ID}", verify=False
+    )
     if response.status_code != 200:
         print(
             f"❌ Failed to retrieve clients. Server responded with code {response.status_code}."
@@ -108,13 +113,25 @@ def update_xui_client(email: str, period: int):
     data = response.json()
     clients = json.loads(data["obj"]["settings"])["clients"]
     client = next((c for c in clients if c.get("email") == email), None)
-    uuid = client["id"]
+    client_uuid = client["id"]
     current_expiry = client["expiryTime"]
     new_expiry = current_expiry + period * 86400 * 1000
-    session_id = session.cookies.get("3x-ui")
-    update_data = {"id": session_id, "expiryTime": new_expiry}
+
+    settings_obj = {
+        "clients": [
+            {
+                "id": client_uuid,
+                "expiryTime": new_expiry,
+            }
+        ]
+    }
+
+    update_data = {
+        "id": INBOUND_ID,
+        "settings": json.dumps(settings_obj, separators=(",", ":")),
+    }
     response = session.post(
-        f"{BASE_URL}/panel/api/inbounds/updateClient/{uuid}",
+        f"{BASE_URL}/panel/api/inbounds/updateClient/{client_uuid}",
         json=update_data,
         verify=False,
     )
