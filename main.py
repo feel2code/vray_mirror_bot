@@ -57,9 +57,9 @@ else:
             "payload": "vray_60",
             "value": round(VRAY_PRICING * 1.9),
         },
-        "vray_90": {
-            "payload": "vray_90",
-            "value": round(VRAY_PRICING * 2.8),
+        "vray_91": {
+            "payload": "vray_91",
+            "value": round(VRAY_PRICING * 2.7),
         },
     }
 
@@ -223,7 +223,7 @@ async def subscribe_vray(call: CallbackQuery) -> None:
     """
     subscribe to the vray service
     """
-    for period in [30, 60, 90]:
+    for period in [30, 60, 91]:
         await call.message.answer_invoice(
             title="Приобрести подписку Velvet RAY",
             description=f"Подписка на {period} дней на {SERVICE_NAME}",
@@ -320,7 +320,13 @@ async def pre_checkout_query(query: PreCheckoutQuery) -> None:
     """
     Pre-checkout query handler
     """
-    if query.invoice_payload.startswith("vray_"):
+    if query.invoice_payload.startswith("vray_30"):
+        await query.answer(ok=True)
+        return
+    if query.invoice_payload.startswith("vray_60"):
+        await query.answer(ok=True)
+        return
+    if query.invoice_payload.startswith("vray_91"):
         await query.answer(ok=True)
         return
     await query.answer(ok=False, error_message="Начните работу с ботом заново. /start")
