@@ -34,6 +34,7 @@ ADMIN = getenv("ADMIN")
 TOKEN = getenv("BOT_TOKEN")
 FS_USER = getenv("FS_USER")
 HOST_URL = getenv("HOST_URL")
+BACKUP_HOST_URL = getenv("BACKUP_HOST_URL")
 
 VRAY_PRICING = int(getenv("VRAY_PRICING"))
 
@@ -73,9 +74,13 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     kb.button(
         text="👽 Проверить подписку", callback_data="check_end_date_of_subscription"
     )
-    kb.button(text="✔️ Подписка Velvet RAY", callback_data="restore_vray_sub")
-    kb.button(text="🥲 Линк Velvet RAY", callback_data="restore_vray_raw")
-    kb.adjust(1, 1, 1, 2)
+    kb.button(text="✔️ Подписка Velvet RAY 2.0", callback_data="restore_vray_sub")
+    kb.button(text="🥲 Линк Velvet RAY 2.0", callback_data="restore_vray_raw")
+    kb.button(
+        text="🫀 Бэкап подписка Velvet RAY v1", callback_data="restore_vray_v1_sub"
+    )
+    kb.button(text="🫀 Бэкап линк Velvet RAY v1", callback_data="restore_vray_v1_raw")
+    kb.adjust(1, 1, 1, 1, 1, 1, 1)
     return kb.as_markup()
 
 
@@ -117,6 +122,7 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
     )
 
 
+# MAIN SERVICE
 @invoices_router.callback_query(F.data.startswith("restore_vray_sub"))
 async def restore_vray_sub(call: CallbackQuery) -> None:
     """
@@ -164,6 +170,54 @@ async def restore_vray_raw(call: CallbackQuery) -> None:
     )
 
 
+# BACKUP SERVICE
+@invoices_router.callback_query(F.data.startswith("restore_vray_v1_sub"))
+async def restore_vray_v1_sub(call: CallbackQuery) -> None:
+    """
+    restore sub if exists
+    """
+    obfuscated_user = get_obfuscated_user(call.from_user.id)
+    if obfuscated_user:
+        vray_check = check_subscription_end(call.from_user.id, is_vray=1)
+        if vray_check:
+            slug = get_client_info(f"{obfuscated_user}@vray")
+            sub_url = f"{BACKUP_HOST_URL}/save666masterx/{slug}"
+            await call.bot.send_message(
+                chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
+            )
+            await call.bot.send_message(chat_id=call.from_user.id, text=sub_url)
+            return
+    await call.message.answer(
+        f"Действующая подпискa на {SERVICE_NAME} не найдена!",
+    )
+
+
+@invoices_router.callback_query(F.data.startswith("restore_vray_v1_raw"))
+async def restore_vray_v1_raw(call: CallbackQuery) -> None:
+    """
+    restore vless raw link if sub exists
+    """
+    obfuscated_user = get_obfuscated_user(call.from_user.id)
+    if obfuscated_user:
+        vray_check = check_subscription_end(call.from_user.id, is_vray=1)
+        if vray_check:
+            slug = get_client_info(f"{obfuscated_user}@vray")
+            sub_url = f"{BACKUP_HOST_URL}/save666masterx/{slug}"
+            r = requests.get(sub_url, timeout=20)
+            r.raise_for_status()
+            raw = r.text.strip()
+            raw_compact = "".join(raw.split())
+            vless_link = base64.b64decode(raw_compact).decode("utf-8", errors="replace")
+            await call.bot.send_message(
+                chat_id=call.from_user.id, text="Вставьте следующий URL в приложение:"
+            )
+            await call.bot.send_message(chat_id=call.from_user.id, text=vless_link)
+            return
+    await call.message.answer(
+        f"Действующая подпискa на {SERVICE_NAME} не найдена!",
+    )
+
+
 @invoices_router.callback_query(F.data.startswith("subscribe_vray"))
 async def subscribe_vray(call: CallbackQuery) -> None:
     """
@@ -184,6 +238,7 @@ async def subscribe_vray(call: CallbackQuery) -> None:
         )
 
 
+# PAYMENTS
 @invoices_router.message(F.successful_payment)
 async def successful_payment(message: Message, bot: Bot) -> None:
     """
