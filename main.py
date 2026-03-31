@@ -273,15 +273,14 @@ async def successful_payment(message: Message, bot: Bot) -> None:
         invoice_payload=message.successful_payment.invoice_payload,
     ):
         # VRAY
-        if message.successful_payment.invoice_payload == "vray_90":
-            add_xui_client(user_id, nickname, uuid_gen)
-            slug = get_client_info(f"{uuid_gen}@vray")
-            sub_url = f"{HOST_URL}/save666masterx/{slug}"
-            await bot.send_message(
-                chat_id=user_id, text="Вставьте следующий URL в приложение:"
-            )
-            await bot.send_message(chat_id=user_id, text=sub_url)
-            return
+        add_xui_client(user_id, nickname, uuid_gen)
+        slug = get_client_info(f"{uuid_gen}@vray")
+        sub_url = f"{HOST_URL}/save666masterx/{slug}"
+        await bot.send_message(
+            chat_id=user_id, text="Вставьте следующий URL в приложение:"
+        )
+        await bot.send_message(chat_id=user_id, text=sub_url)
+        return
 
     await message.answer("Подписка продлена.")
 

@@ -46,6 +46,7 @@ def add_xui_client(user_id: int, nickname: str, obfuscated_user: str):
                 "limitIp": 0,
                 "totalGB": 0,
                 "expiryTime": expiry_timestamp,
+                "subId": obfuscated_user,
             }
         ]
     }
