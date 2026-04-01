@@ -10,17 +10,13 @@ from aiogram import Bot, Dispatcher, F, Router, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
-from aiogram.types import (
-    CallbackQuery,
-    InlineKeyboardMarkup,
-    LabeledPrice,
-    Message,
-    PreCheckoutQuery,
-)
+from aiogram.types import (CallbackQuery, InlineKeyboardMarkup, LabeledPrice,
+                           Message, PreCheckoutQuery)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
 
-from db_tools import check_subscription_end, get_obfuscated_user, need_to_update_user
+from db_tools import (check_subscription_end, get_obfuscated_user,
+                      need_to_update_user)
 from xui import add_xui_client, get_client_info
 
 logger = logging.getLogger(__name__)
@@ -69,17 +65,17 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     subscribe management keyboard
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="➕ Купить подписку Velvet RAY", callback_data="subscribe_vray")
+    kb.button(text="➕ Купить подписку VRAY MIRROR", callback_data="subscribe_vray")
     kb.button(text="ℹ️  Инструкция и поддержка", callback_data="instruction")
     kb.button(
         text="👽 Проверить подписку", callback_data="check_end_date_of_subscription"
     )
-    kb.button(text="✔️ Подписка Velvet RAY 2.0", callback_data="restore_vray_sub")
-    kb.button(text="🥲 Линк Velvet RAY 2.0", callback_data="restore_vray_raw")
+    kb.button(text="✔️ Подписка VRAY MIRROR 2.0", callback_data="restore_vray_sub")
+    kb.button(text="🥲 Линк VRAY MIRROR 2.0", callback_data="restore_vray_raw")
     kb.button(
-        text="🫀 Бэкап подписка Velvet RAY v1", callback_data="restore_vray_v1_sub"
+        text="🫀 Бэкап подписка VRAY MIRROR v1", callback_data="restore_vray_v1_sub"
     )
-    kb.button(text="🫀 Бэкап линк Velvet RAY v1", callback_data="restore_vray_v1_raw")
+    kb.button(text="🫀 Бэкап линк VRAY MIRROR v1", callback_data="restore_vray_v1_raw")
     kb.adjust(1, 1, 1, 1, 1, 1, 1)
     return kb.as_markup()
 
@@ -89,7 +85,7 @@ def home_kb() -> InlineKeyboardMarkup:
     home keyboard
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="➕ Купить подписку Velvet RAY", callback_data="subscribe_vray")
+    kb.button(text="➕ Купить подписку VRAY MIRROR", callback_data="subscribe_vray")
     kb.button(text="😢 Назад", callback_data="home")
     kb.adjust(1, 1)
     return kb.as_markup()
@@ -225,7 +221,7 @@ async def subscribe_vray(call: CallbackQuery) -> None:
     """
     for period in [30, 60, 91]:
         await call.message.answer_invoice(
-            title="Приобрести подписку Velvet RAY",
+            title="Приобрести подписку VRAY MIRROR",
             description=f"Подписка на {period} дней на {SERVICE_NAME}",
             prices=[
                 LabeledPrice(
@@ -294,21 +290,24 @@ async def get_instruction(call: CallbackQuery) -> None:
         f"""
         Инструкция по установке {SERVICE_NAME}:
         1. Установите любой удобный для вас клиент на устройство, поддерживающий импорт подписок vless.
-        * Для iOS, Android, Windows, macOS, Linux:
-          https://www.happ.su/main
         * Для iOS: https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690
         * Для Android: https://play.google.com/store/apps/details?id=com.v2raytun.android
+        * Для iOS, Android, Windows, macOS, Linux:
+          https://www.happ.su/main
         2. Купите подписку на {SERVICE_NAME}.
         3. После оплаты, вам придет сообщение с подпиской, которую нужно
         импортировать в приложении для подключения.
            Если вдруг возникнут проблемы с импортом, вы можете вручную создать конфигурацию в приложении,
-           нажав на кнопку "Подписка Velvet RAY" в боте,
-           либо на кнопку "Линк Velvet RAY" и скопировав оттуда URL подписки для импорта.
+           нажав на кнопку "Подписка {SERVICE_NAME}" в боте,
+           либо на кнопку "Линк {SERVICE_NAME}" и скопировав оттуда URL подписки для импорта.
+        4. Настройте маршрутизацию трафика в приложении через плагины.
 
         Приятного пользования! Подписка на сервис не означает обхода блокировок,
         дает доступ к ресурсам компании {SERVICE_NAME}.
 
-        По вопросам поддержки обращаться к @load_it_check_it_quick_rewriteit
+        По вопросам поддержки обращаться через веб-сайт,
+        там указаны ссылки на все доступные мессенджеры:
+        https://feel2code.github.io/vray_mirror_web
         """.replace("  ", ""),
         reply_markup=home_kb(),
     )
