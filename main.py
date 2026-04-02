@@ -347,8 +347,7 @@ async def get_routing_instruction(call: CallbackQuery) -> None:
     for instruction_pic in range(1, 4):
         sleep(1)
         await call.message.answer_photo(
-            chat_id=call.message.chat.id,
-            photo=FSInputFile(f"assets/{instruction_pic}.jpg"),
+            photo=FSInputFile(f"assets/{instruction_pic}.jpg")
         )
     await call.message.answer(
         """
