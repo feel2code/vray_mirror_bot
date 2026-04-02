@@ -90,7 +90,12 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
         text="🫀 Бэкап подписка VRAY MIRROR v1", callback_data="restore_vray_v1_sub"
     )
     kb.button(text="🫀 Бэкап линк VRAY MIRROR v1", callback_data="restore_vray_v1_raw")
-    kb.adjust(1, 1, 1, 1, 1, 1, 1)
+    kb.button(
+        text="НАПИСАТЬ В ПОДДЕРЖКУ",
+        callback_data="support",
+        style="danger",
+    )
+    kb.adjust(1, 1, 1, 1, 1, 1, 1, 1)
     return kb.as_markup()
 
 
@@ -109,8 +114,13 @@ def home_kb() -> InlineKeyboardMarkup:
         callback_data="routing_instruction",
         style="primary",
     )
+    kb.button(
+        text="НАПИСАТЬ В ПОДДЕРЖКУ",
+        callback_data="support",
+        style="danger",
+    )
     kb.button(text="😢 Назад", callback_data="home")
-    kb.adjust(1, 1, 1)
+    kb.adjust(1, 1, 1, 1)
     return kb.as_markup()
 
 
@@ -309,6 +319,24 @@ async def successful_payment(message: Message, bot: Bot) -> None:
 
 
 # SUPPORT
+@invoices_router.callback_query(F.data.startswith("support"))
+async def support(call: CallbackQuery) -> None:
+    """
+    support links
+    """
+    await call.message.answer(
+        """По вопросам поддержки перейдите по <b><a href="https://feel2code.github.io/vray_mirror_web">ССЫЛКЕ</a></b>,
+        там указаны все доступные мессенджеры где вам помогут.
+
+        Либо напишите <b><a href="https://t.me/load_it_check_it_quick_rewriteit">СЮДА</a></b>
+        """.replace(
+            "  ", ""
+        ),
+        parse_mode="HTML",
+        reply_markup=home_kb(),
+    )
+
+
 @invoices_router.callback_query(F.data.startswith("instruction"))
 async def get_instruction(call: CallbackQuery) -> None:
     """
