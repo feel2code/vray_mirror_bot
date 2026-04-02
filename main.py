@@ -347,7 +347,9 @@ async def get_routing_instruction(call: CallbackQuery) -> None:
     for instruction_pic in range(1, 4):
         sleep(1)
         await call.message.answer_photo(
-            photo=FSInputFile(f"assets/{instruction_pic}.jpg")
+            photo=FSInputFile(
+                f"/{FS_USER}/vray_mirror_bot/assets/{instruction_pic}.jpg"
+            )
         )
     await call.message.answer(
         """
