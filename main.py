@@ -10,13 +10,17 @@ from aiogram import Bot, Dispatcher, F, Router, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
-from aiogram.types import (CallbackQuery, InlineKeyboardMarkup, LabeledPrice,
-                           Message, PreCheckoutQuery)
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    LabeledPrice,
+    Message,
+    PreCheckoutQuery,
+)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
 
-from db_tools import (check_subscription_end, get_obfuscated_user,
-                      need_to_update_user)
+from db_tools import check_subscription_end, get_obfuscated_user, need_to_update_user
 from xui import add_xui_client, get_client_info
 
 logger = logging.getLogger(__name__)
@@ -65,10 +69,18 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     subscribe management keyboard
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="➕ Купить подписку VRAY MIRROR", callback_data="subscribe_vray")
-    kb.button(text="ℹ️  Инструкция и поддержка", callback_data="instruction")
     kb.button(
-        text="👽 Проверить подписку", callback_data="check_end_date_of_subscription"
+        text="➕ Купить подписку VRAY MIRROR",
+        callback_data="subscribe_vray",
+        style="success",
+    )
+    kb.button(
+        text="ℹ️  Инструкция и поддержка", callback_data="instruction", style="primary"
+    )
+    kb.button(
+        text="👽 Проверить подписку",
+        callback_data="check_end_date_of_subscription",
+        style="primary",
     )
     kb.button(text="✔️ Подписка VRAY MIRROR 2.0", callback_data="restore_vray_sub")
     kb.button(text="🥲 Линк VRAY MIRROR 2.0", callback_data="restore_vray_raw")
@@ -85,7 +97,11 @@ def home_kb() -> InlineKeyboardMarkup:
     home keyboard
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="➕ Купить подписку VRAY MIRROR", callback_data="subscribe_vray")
+    kb.button(
+        text="➕ Купить подписку VRAY MIRROR",
+        callback_data="subscribe_vray",
+        style="success",
+    )
     kb.button(text="😢 Назад", callback_data="home")
     kb.adjust(1, 1)
     return kb.as_markup()
@@ -96,7 +112,7 @@ def accept_kb() -> InlineKeyboardMarkup:
     accept terms of service
     """
     kb = InlineKeyboardBuilder()
-    kb.button(text="ПРИНИМАЮ", callback_data="accept")
+    kb.button(text="ПРИНИМАЮ", callback_data="accept", style="success")
     kb.adjust(1)
     return kb.as_markup()
 
