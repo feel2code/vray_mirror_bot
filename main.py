@@ -84,8 +84,8 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
         callback_data="check_end_date_of_subscription",
         style="primary",
     )
-    kb.button(text="✔️ Подписка VRAY MIRROR 2.0", callback_data="restore_vray_sub")
-    kb.button(text="🥲 Линк VRAY MIRROR 2.0", callback_data="restore_vray_raw")
+    kb.button(text="🫀 Подписка VRAY MIRROR 2.0", callback_data="restore_vray_sub")
+    kb.button(text="🫀 Линк VRAY MIRROR 2.0", callback_data="restore_vray_raw")
     kb.button(
         text="🫀 Бэкап подписка VRAY MIRROR v1", callback_data="restore_vray_v1_sub"
     )
@@ -312,9 +312,10 @@ async def get_instruction(call: CallbackQuery) -> None:
     """
     await call.message.answer(
         f"""
-        Инструкция по установке {SERVICE_NAME}:
+        <b>Инструкция по установке {SERVICE_NAME}:</b>
 
         1. Установите любой удобный для вас клиент на устройство, поддерживающий импорт подписок vless.
+
         <b>* Для iOS: <a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690">ТЫК</a></b>
 
         <b>* Для Android: <a href="https://play.google.com/store/apps/details?id=com.v2raytun.android">ТЫК</a></b>
@@ -325,16 +326,15 @@ async def get_instruction(call: CallbackQuery) -> None:
 
         3. После оплаты, вам придет ссылка, перейдите по ней или импортируйте в приложение.
            Если вдруг возникнут проблемы, вы можете вручную запросить ссылку в боте,
-           нажав на кнопку "Подписка {SERVICE_NAME}", или "Линк {SERVICE_NAME}".
+           нажав на кнопку "🫀 Подписка {SERVICE_NAME}", или "🫀 Линк {SERVICE_NAME}".
 
-        4. Настройте маршрутизацию трафика в приложении через плагины если
-           не хотите выключать/включать приложения для доступа к обычным сайтам.
-           Кнопка ➡️ "Настройка маршрутов".
+        4. Если не хотите выключать/включать приложения для доступа к обычным сайтам,
+           нажмите кнопку "Настройка маршрутов" внизу ⬇️
 
         Приятного пользования!
 
         По вопросам поддержки перейдите по <b><a href="https://feel2code.github.io/vray_mirror_web">ССЫЛКЕ</a></b>,
-        там указаны ссылки на все доступные мессенджеры где вам помогут.
+        там указаны все доступные мессенджеры где вам помогут.
         """.replace("  ", ""),
         parse_mode="HTML",
         reply_markup=home_kb(),
