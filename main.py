@@ -133,8 +133,9 @@ async def check_end_date_of_subscription(call: CallbackQuery) -> None:
     if conf_to_check:
         vray_check = check_subscription_end(call.from_user.id, is_vray=1)
         if vray_check:
-            await call.message.answer(f"""Ваша подписка на {SERVICE_NAME} действует до:
-                {str(vray_check)[:-8]}""")
+            await call.message.answer(
+                f"Подписка на {SERVICE_NAME} действует до: {str(vray_check)[:-8]}"
+            )
         return
     await call.message.answer(
         f"Действующие подписки на {SERVICE_NAME} не найдены!",
