@@ -3,6 +3,7 @@ import base64
 import logging
 import sys
 from os import getenv
+from time import sleep
 from uuid import uuid4
 
 import requests
@@ -12,6 +13,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import (
     CallbackQuery,
+    FSInputFile,
     InlineKeyboardMarkup,
     LabeledPrice,
     Message,
@@ -102,8 +104,13 @@ def home_kb() -> InlineKeyboardMarkup:
         callback_data="subscribe_vray",
         style="success",
     )
+    kb.button(
+        text="Настройка маршрутов",
+        callback_data="routing_instruction",
+        style="primary",
+    )
     kb.button(text="😢 Назад", callback_data="home")
-    kb.adjust(1, 1)
+    kb.adjust(1, 1, 1)
     return kb.as_markup()
 
 
@@ -297,6 +304,7 @@ async def successful_payment(message: Message, bot: Bot) -> None:
     await message.answer("Подписка продлена.")
 
 
+# SUPPORT
 @invoices_router.callback_query(F.data.startswith("instruction"))
 async def get_instruction(call: CallbackQuery) -> None:
     """
@@ -316,7 +324,9 @@ async def get_instruction(call: CallbackQuery) -> None:
            Если вдруг возникнут проблемы с импортом, вы можете вручную создать конфигурацию в приложении,
            нажав на кнопку "Подписка {SERVICE_NAME}" в боте,
            либо на кнопку "Линк {SERVICE_NAME}" и скопировав оттуда URL подписки для импорта.
-        4. Настройте маршрутизацию трафика в приложении через плагины.
+        4. Настройте маршрутизацию трафика в приложении через плагины если
+           не хотите выключать/включать приложения для доступа к обычным сайтам.
+           Кнопка ниже -> "Настройка маршрутов".
 
         Приятного пользования! Подписка на сервис не означает обхода блокировок,
         дает доступ к ресурсам компании {SERVICE_NAME}.
@@ -329,6 +339,30 @@ async def get_instruction(call: CallbackQuery) -> None:
     )
 
 
+@invoices_router.callback_query(F.data.startswith("routing_instruction"))
+async def get_routing_instruction(call: CallbackQuery) -> None:
+    """
+    instruction for the routing rules setup
+    """
+    for instruction_pic in range(1, 4):
+        sleep(1)
+        await call.message.send_photo(
+            chat_id=call.message.chat.id,
+            photo=FSInputFile(f"assets/{instruction_pic}.jpg"),
+        )
+    await call.message.answer(
+        """
+        Чтобы настроить маршруты в v2raytun зайдите в "Настройки",
+        затем "Правила от сообщества", выберите интересующие правила
+        и нажмите "Подробнее", затем "Установить" и вернитесь назад.
+        После этого нажмите "Включить функцию" и перезапустите подключение.
+        Так вам не придется больше переключать подключение для доступа к нужным сайтам.
+        """.replace("  ", ""),
+        reply_markup=home_kb(),
+    )
+
+
+# PRE-CHECKOUT
 @invoices_router.pre_checkout_query(F.invoice_payload)
 async def pre_checkout_query(query: PreCheckoutQuery) -> None:
     """
