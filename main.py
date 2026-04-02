@@ -293,7 +293,8 @@ async def successful_payment(message: Message, bot: Bot) -> None:
         invoice_payload=message.successful_payment.invoice_payload,
     ):
         # VRAY
-        add_xui_client(user_id, nickname, uuid_gen)
+        days = int(message.successful_payment.invoice_payload.split("_")[1])
+        add_xui_client(user_id, nickname, uuid_gen, days)
         slug = get_client_info(f"{uuid_gen}@vray")
         sub_url = f"{HOST_URL}/save666masterx/{slug}"
         backup_sub_url = f"{BACKUP_HOST_URL}/save666masterx/{slug}"

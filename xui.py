@@ -13,7 +13,6 @@ BASE_URL = os.getenv("BASE_URL")
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 INBOUND_ID = os.getenv("INBOUND_ID")
-DAYS_VALID = 90
 
 
 def auth():
@@ -30,11 +29,11 @@ def auth():
     return session
 
 
-def add_xui_client(user_id: int, nickname: str, obfuscated_user: str):
+def add_xui_client(user_id: int, nickname: str, obfuscated_user: str, days: int):
     """Adding new x-ui client via api on https."""
     print(f"Adding new x-ui client {nickname}")
     session = auth()
-    expiry_timestamp = int((time.time() + DAYS_VALID * 86400) * 1000)
+    expiry_timestamp = int((time.time() + days * 86400) * 1000)
 
     clients_json = {
         "clients": [
@@ -161,7 +160,7 @@ def update_xui_client(email: str, period: int):
 
 
 if __name__ == "__main__":
-    # add_xui_client(os.getenv("ADMIN"), "test_nick2", "test")
+    # add_xui_client(os.getenv("ADMIN"), "test_nick2", "test", 30)
     # delete_xui_client("test@vray")
     # update_xui_client("test@vray", 30)
     get_client_info("test@vray")
