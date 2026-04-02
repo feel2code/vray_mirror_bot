@@ -296,10 +296,12 @@ async def successful_payment(message: Message, bot: Bot) -> None:
         add_xui_client(user_id, nickname, uuid_gen)
         slug = get_client_info(f"{uuid_gen}@vray")
         sub_url = f"{HOST_URL}/save666masterx/{slug}"
+        backup_sub_url = f"{BACKUP_HOST_URL}/save666masterx/{slug}"
         await bot.send_message(
-            chat_id=user_id, text="Вставьте следующий URL в приложение:"
+            chat_id=user_id, text="Вставьте следующие URL в приложение:"
         )
         await bot.send_message(chat_id=user_id, text=sub_url)
+        await bot.send_message(chat_id=user_id, text=backup_sub_url)
         return
 
     await message.answer("Подписка продлена.")
