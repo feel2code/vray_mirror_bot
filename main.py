@@ -87,15 +87,11 @@ def subscribe_management_kb() -> InlineKeyboardMarkup:
     kb.button(text="🫀 Подписка VRAY MIRROR 2.0", callback_data="restore_vray_sub")
     kb.button(text="🫀 Линк VRAY MIRROR 2.0", callback_data="restore_vray_raw")
     kb.button(
-        text="🫀 Бэкап подписка VRAY MIRROR v1", callback_data="restore_vray_v1_sub"
-    )
-    kb.button(text="🫀 Бэкап линк VRAY MIRROR v1", callback_data="restore_vray_v1_raw")
-    kb.button(
         text="НАПИСАТЬ В ПОДДЕРЖКУ",
         callback_data="support",
         style="danger",
     )
-    kb.adjust(1, 1, 1, 1, 1, 1, 1, 1)
+    kb.adjust(1, 1, 1, 1, 1, 1)
     return kb.as_markup()
 
 
