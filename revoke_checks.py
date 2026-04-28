@@ -64,10 +64,14 @@ async def send_message_to_all_users() -> None:
     bot = Bot(token=TOKEN)
     all_users = get_all_users()
     for user_id in all_users:
-        await bot.send_message(
-            chat_id=int(user_id),
-            text="Объявление: ",
-        )
+        try:
+            await bot.send_message(
+                chat_id=int(user_id),
+                text="Объявление: ",
+            )
+        except Exception as e:
+            print(f"Failed to send message to user {user_id}: {e}")
+            continue
 
 
 async def refund() -> None:
